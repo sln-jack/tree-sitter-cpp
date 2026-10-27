@@ -1045,11 +1045,11 @@ module.exports = grammar(C, {
       $.splice_expression,
     ),
 
-    _string: $ => choice(
+    _string: $ => prec.left(choice(
       $.string_literal,
       $.raw_string_literal,
       $.concatenated_string,
-    ),
+    )),
 
     raw_string_literal: $ => seq(
       choice('R"', 'LR"', 'uR"', 'UR"', 'u8R"'),
@@ -1532,8 +1532,10 @@ module.exports = grammar(C, {
     this: _ => 'this',
 
     concatenated_string: $ => prec.right(seq(
-      choice($.identifier, $.string_literal, $.raw_string_literal),
-      choice($.string_literal, $.raw_string_literal),
+      choice(
+        seq($.identifier, choice($.string_literal, $.raw_string_literal)),
+        seq(choice($.string_literal, $.raw_string_literal), choice($.string_literal, $.raw_string_literal, $.identifier)),
+      ),
       repeat(choice($.identifier, $.string_literal, $.raw_string_literal)),
     )),
 
